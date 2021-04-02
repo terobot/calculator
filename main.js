@@ -21,7 +21,7 @@ subtract = (a,b) => a-b
 multiply = (a,b) => a*b
 divide = (a,b) => a/b
 square = (a) => a**2
-squareRoot = (a) => Math.sqrt(a)
+squareRoot = (a) => a**(1/2)
 percentage = (a) => a/100
 
 operate = (operator,a,b) => window[operator](a,b)
@@ -82,8 +82,6 @@ checkFormula = (str) => {
 }
 calculate = (str) => {
     const strWithPoints = str.replaceAll(',', '.')
-    //const strAsArray = strWithPoints.split(/(\d+\.\d+)+(\d+)/)
-    //const strAsArray = strWithPoints.split(/(\d+)/)
     const strAsArray = strWithPoints.split(/(\d+(?:\.\d+)?)/)
     return strAsArray
 }
