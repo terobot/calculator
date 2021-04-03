@@ -10,6 +10,8 @@ const addButton = document.getElementById('add')
 const subtrackButton = document.getElementById('subtract')
 const multiplyButton = document.getElementById('multiply')
 const divideButton = document.getElementById('divide')
+const squareButton = document.getElementById('square')
+const squareRootButton = document.getElementById('squareroot')
 const confirmButton = document.getElementById('confirm')
 const display = {}
 display.value = ''
@@ -20,14 +22,33 @@ add = (a,b) => a+b
 subtract = (a,b) => a-b
 multiply = (a,b) => a*b
 divide = (a,b) => a/b
+power = (a,b) => a**b
 square = (a) => a**2
 squareRoot = (a) => a**(1/2)
 percentage = (a) => a/100
 
 operate = (operator,a,b) => window[operator](a,b)
 updateDisplay = (valueToAdd) => {
-    display.value += valueToAdd
-    display.lastChar = valueToAdd
+    if(valueToAdd === '*' & display.lastChar === '*') {
+        display.value = display.value.slice(0, -1) + '^'
+        display.lastChar = '^'
+    }
+    else if(valueToAdd === '-' & display.lastChar === '-') {
+        display.value = display.value.slice(0, -1) + '+'
+        display.lastChar = '+'
+    }
+    else if(valueToAdd === '+' & display.lastChar === '-') {
+    }
+    else if(valueToAdd === '-' & display.lastChar === '+') {
+        display.value = display.value.slice(0, -1) + '-'
+        display.lastChar = '-'
+    }
+    else if(valueToAdd === '+' & display.lastChar === '+') {
+    }
+    else {
+        display.value += valueToAdd
+        display.lastChar = valueToAdd
+    }  
     if(!display.decimalAllowed & !/^[0-9]/.test(display.lastChar) & display.lastChar !== ',') {
         display.decimalAllowed = true
     }
@@ -36,10 +57,10 @@ updateDisplay = (valueToAdd) => {
 clearDisplay = (display) => display.value = ''
 checkFormula = (str) => {
     let isValid = true
-    if('/*%)'.indexOf(str[0]) !== -1) {
+    if('^/*%)\xB2'.indexOf(str[0]) !== -1) {
         isValid = false
     }
-    if('/*(+-'.indexOf(str[str.length-1]) !== -1) {
+    if('^/*(+-\u221A'.indexOf(str[str.length-1]) !== -1) {
         isValid = false
     }
     if(str.indexOf('//') !== -1) {
@@ -48,10 +69,10 @@ checkFormula = (str) => {
     if(str.indexOf('**') !== -1) {
         isValid = false
     }
-    if(str.indexOf(',,') !== -1) {
+    if(str.indexOf('^^') !== -1) {
         isValid = false
     }
-    if(str.indexOf('%%') !== -1) {
+    if(str.indexOf(',,') !== -1) {
         isValid = false
     }
     if(str.indexOf('()') !== -1) {
@@ -69,10 +90,49 @@ checkFormula = (str) => {
     if(str.indexOf('/)') !== -1) {
         isValid = false
     }
+    if(str.indexOf('^)') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('\u221A)') !== -1) {
+        isValid = false
+    }
     if(str.indexOf('/*') !== -1) {
         isValid = false
     }
     if(str.indexOf('*/') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('^*') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('*^') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('/^') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('^/') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('*\xB2') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('+\xB2') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('-\xB2') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('/\xB2') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('^\xB2') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('\u221A^') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('\u221A\xB2') !== -1) {
         isValid = false
     }
     if((str.match(/\(/g) || []).length !== (str.match(/\)/g) || []).length) {
@@ -80,10 +140,32 @@ checkFormula = (str) => {
     }
     return isValid
 }
+cleanFormula = (str) => {
+    const cleanDots = str.replaceAll(',', '.')
+    const cleanBrackets = cleanDots.replaceAll('(', '[').replaceAll(')', ']')
+    const cleanedStr = cleanBrackets
+    return cleanedStr
+}
 calculate = (str) => {
-    const strWithPoints = str.replaceAll(',', '.')
-    const strAsArray = strWithPoints.split(/(\d+(?:\.\d+)?)/)
-    return strAsArray
+    strAsArray = str.split(/(\d+(?:\.\d+)?)/)
+    console.log(strAsArray)
+    return 0
+}
+evaluate = (str) => {
+    if(checkFormula(display.value)) {
+        const cleanedStr = cleanFormula(str)
+        let tempStr = cleanedStr
+        let tempSubStr = ''
+        let tempResult = ''
+        while (tempStr.indexOf('[') !== -1) {
+            tempSubStr = tempStr.match(/\[([^\[\]]*)\]/)[1]
+            tempResult = calculate(tempSubStr)
+            tempStr = tempStr.replaceAll('['+tempSubStr+']', tempResult)
+        }
+        //const mostInnerBrackets = cleanedStr.match(/\[([^\[\]]*)\]/)
+        //const strAsArray = mostInnerBrackets.split(/(\d+(?:\.\d+)?)/)
+        return calculate(tempStr)
+    }
 }
 
 Array.from(numButtons).forEach(item => {
@@ -147,7 +229,15 @@ divideButton.addEventListener('click', event => {
     updateDisplay(event.target.innerHTML)
 })
 
+squareButton.addEventListener('click', event => {
+    updateDisplay('\xB2')
+})
+
+squareRootButton.addEventListener('click', event => {
+    updateDisplay('\u221A')
+})
+
 confirmButton.addEventListener('click', event => {
     console.log(checkFormula(display.value))
-    console.log(calculate(display.value))
+    evaluate(display.value)
 })
