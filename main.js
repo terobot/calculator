@@ -147,9 +147,14 @@ cleanFormula = (str) => {
     return cleanedStr
 }
 calculate = (str) => {
-    strAsArray = str.split(/(\d+(?:\.\d+)?)/)
-    console.log(strAsArray)
-    return 0
+    let strAsArray = str.split(/(\d+(?:\.\d+)?)/).filter(el => el)
+    while(strAsArray.findIndex(el => el.charAt(0) === '%') !== -1) {
+        let index = strAsArray.findIndex(el => el.includes('%'))
+        strAsArray.splice(index-1, 1, percentage(strAsArray[index-1]).toString())
+        strAsArray.splice(index, 1, strAsArray[index].substring(1))
+        strAsArray = strAsArray.filter(el => el)
+    }
+    return strAsArray[0]
 }
 evaluate = (str) => {
     if(checkFormula(display.value)) {
@@ -162,8 +167,6 @@ evaluate = (str) => {
             tempResult = calculate(tempSubStr)
             tempStr = tempStr.replaceAll('['+tempSubStr+']', tempResult)
         }
-        //const mostInnerBrackets = cleanedStr.match(/\[([^\[\]]*)\]/)
-        //const strAsArray = mostInnerBrackets.split(/(\d+(?:\.\d+)?)/)
         return calculate(tempStr)
     }
 }
@@ -239,5 +242,5 @@ squareRootButton.addEventListener('click', event => {
 
 confirmButton.addEventListener('click', event => {
     console.log(checkFormula(display.value))
-    evaluate(display.value)
+    console.log(evaluate(display.value))
 })
