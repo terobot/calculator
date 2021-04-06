@@ -18,8 +18,8 @@ display.value = ''
 display.lastChar = ''
 display.decimalAllowed = true
 
-add = (a,b) => a+b
-subtract = (a,b) => a-b
+add = (a,b) => parseInt(a)+parseInt(b)
+subtract = (a,b) => parseInt(a)-parseInt(b)
 multiply = (a,b) => a*b
 divide = (a,b) => a/b
 power = (a,b) => a**b
@@ -27,6 +27,7 @@ square = (a) => a**2
 squareRoot = (a) => a**(1/2)
 percentage = (a) => a/100
 
+isOdd = (a) => a%2
 operate = (operator,a,b) => window[operator](a,b)
 updateDisplay = (valueToAdd) => {
     if(valueToAdd === '*' & display.lastChar === '*') {
@@ -54,7 +55,6 @@ updateDisplay = (valueToAdd) => {
     }
     consoleDisplay[0].innerHTML = display.value
 }
-clearDisplay = (display) => display.value = ''
 checkFormula = (str) => {
     let isValid = true
     if('^/*%)\xB2'.indexOf(str[0]) !== -1) {
@@ -69,7 +69,25 @@ checkFormula = (str) => {
     if(str.indexOf('**') !== -1) {
         isValid = false
     }
+    if(str.indexOf('-/') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('-*') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('+/') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('+*') !== -1) {
+        isValid = false
+    }
     if(str.indexOf('^^') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('+^') !== -1) {
+        isValid = false
+    }
+    if(str.indexOf('-^') !== -1) {
         isValid = false
     }
     if(str.indexOf(',,') !== -1) {
@@ -148,10 +166,54 @@ cleanFormula = (str) => {
 }
 calculate = (str) => {
     let strAsArray = str.split(/(\d+(?:\.\d+)?)/).filter(el => el)
-    while(strAsArray.findIndex(el => el.charAt(0) === '%') !== -1) {
-        let index = strAsArray.findIndex(el => el.includes('%'))
-        strAsArray.splice(index-1, 1, percentage(strAsArray[index-1]).toString())
-        strAsArray.splice(index, 1, strAsArray[index].substring(1))
+    while(strAsArray.findIndex(el => el.length > 1 & el.charAt(el.length-1) === '-') !== -1) {
+        let index = strAsArray.findIndex(el => el.charAt(el.length-1) === '-')
+        strAsArray.splice(index+1, 1, multiply(-1, strAsArray[index+1]).toString())
+        strAsArray.splice(index, 1, strAsArray[index].slice(0, -1))
+        strAsArray = strAsArray.filter(el => el)
+    }
+    while(strAsArray.findIndex(el => el.charAt(0) === '%' | el.charAt(0) === '\xB2') !== -1) {
+        let index = strAsArray.findIndex(el => el.charAt(0) === '%' | el.charAt(0) === '\xB2')
+        if(strAsArray[index][0] === '%'){
+            strAsArray.splice(index-1, 1, percentage(strAsArray[index-1]).toString())
+        }
+        else if(strAsArray[index][0] === '\xB2'){
+            strAsArray.splice(index-1, 1, square(strAsArray[index-1]).toString())
+        }
+        strAsArray.splice(index, 1, strAsArray[index].slice(1))
+        strAsArray = strAsArray.filter(el => el)
+    }
+    while(strAsArray.findIndex(el => el.charAt(el.length-1) === '\u221A') !== -1) {
+        let index = strAsArray.findIndex(el => el.charAt(el.length-1) === '\u221A')
+        strAsArray.splice(index+1, 1, squareRoot(strAsArray[index+1]).toString())
+        strAsArray.splice(index, 1, strAsArray[index].slice(0, -1))
+        strAsArray = strAsArray.filter(el => el)
+    }
+    while(strAsArray.findIndex(el => el.charAt(el.length-1) === '^') !== -1) {
+        let index = strAsArray.findIndex(el => el.charAt(0) === '^')
+        strAsArray.splice(index+1, 1, power(strAsArray[index-1], strAsArray[index+1]).toString())
+        strAsArray.splice(index-1, 2, strAsArray[index].slice(1))
+        strAsArray = strAsArray.filter(el => el)
+    }
+    while(strAsArray.findIndex(el => el.charAt(0) === '/' | el.charAt(0) === '*') !== -1) {
+        let index = strAsArray.findIndex(el => el.charAt(0) === '/' | el.charAt(0) === '*')
+        if(strAsArray[index][0] === '/'){
+            strAsArray.splice(index+1, 1, divide(strAsArray[index-1], strAsArray[index+1]).toString())
+        }
+        else if(strAsArray[index][0] === '*'){
+            strAsArray.splice(index+1, 1, multiply(strAsArray[index-1], strAsArray[index+1]).toString())
+        }
+        strAsArray.splice(index-1, 2, strAsArray[index].slice(1))
+        strAsArray = strAsArray.filter(el => el)
+    }
+    while(strAsArray.findIndex(el => el.charAt(el.length-1) === '+' | el.charAt(el.length-1) === '-') !== -1) {
+        let index = strAsArray.findIndex(el => el.charAt(el.length-1) === '+' | el.charAt(el.length-1) === '-')
+        if(isOdd((strAsArray[index].match(/-/g) || []).length)){
+            strAsArray.splice(index-1, 3, subtract(strAsArray[index-1], strAsArray[index+1]).toString())
+        }
+        else if(!isOdd((strAsArray[index].match(/-/g) || []).length)){
+            strAsArray.splice(index-1, 3, add(strAsArray[index-1], strAsArray[index+1]).toString())
+        }
         strAsArray = strAsArray.filter(el => el)
     }
     return strAsArray[0]
