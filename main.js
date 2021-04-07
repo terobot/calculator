@@ -227,11 +227,21 @@ evaluate = (str) => {
         while (tempStr.indexOf('[') !== -1) {
             tempSubStr = tempStr.match(/\[([^\[\]]*)\]/)[1]
             tempResult = calculate(tempSubStr)
-            if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('[')-1]))) {
-                tempStr = tempStr.replaceAll('['+tempSubStr+']', '*'+tempResult)
+            if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)-1]))) {
+                if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+1]))) {
+                    tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult+'*')
+                }
+                else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+1]))) {
+                    tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult)
+                }
             }
-            else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('[')-1]))) {
-                tempStr = tempStr.replaceAll('['+tempSubStr+']', tempResult)
+            else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)-1]))) {
+                if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+1]))) {
+                    tempStr = tempStr.replace('['+tempSubStr+']', tempResult+'*')
+                }
+                else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+1]))) {
+                    tempStr = tempStr.replace('['+tempSubStr+']', tempResult)
+                }
             }
         }
         return calculate(tempStr)
