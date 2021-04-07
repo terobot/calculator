@@ -18,8 +18,8 @@ display.value = ''
 display.lastChar = ''
 display.decimalAllowed = true
 
-add = (a,b) => parseInt(a)+parseInt(b)
-subtract = (a,b) => parseInt(a)-parseInt(b)
+add = (a,b) => parseFloat(a)+parseFloat(b)
+subtract = (a,b) => parseFloat(a)-parseFloat(b)
 multiply = (a,b) => a*b
 divide = (a,b) => a/b
 power = (a,b) => a**b
@@ -30,6 +30,8 @@ percentage = (a) => a/100
 isOdd = (a) => a%2
 operate = (operator,a,b) => window[operator](a,b)
 updateDisplay = (valueToAdd) => {
+    display.value = consoleDisplay[0].innerHTML
+    display.lastChar = display.value.slice(-1)
     if(valueToAdd === '*' & display.lastChar === '*') {
         display.value = display.value.slice(0, -1) + '^'
         display.lastChar = '^'
@@ -156,6 +158,11 @@ checkFormula = (str) => {
     if((str.match(/\(/g) || []).length !== (str.match(/\)/g) || []).length) {
         isValid = false
     }
+    [...str].forEach(c => {
+        if('0123456789,%+-\xB2\u221A*()/'.indexOf(c) === -1) {
+            isValid = false
+        }
+    })
     return isValid
 }
 cleanFormula = (str) => {
@@ -318,6 +325,7 @@ squareRootButton.addEventListener('click', event => {
 })
 
 confirmButton.addEventListener('click', event => {
+    display.value = consoleDisplay[0].innerHTML
     console.log(checkFormula(display.value))
     console.log(evaluate(display.value))
 })
