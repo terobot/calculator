@@ -13,10 +13,35 @@ const divideButton = document.getElementById('divide')
 const squareButton = document.getElementById('square')
 const squareRootButton = document.getElementById('squareroot')
 const confirmButton = document.getElementById('confirm')
+const malformedMessage = '<div contenteditable="false">Malformed expression</div>'
+const divideByZeroMessage = '<div contenteditable="false">Division by zero is undefined</div>'
 const display = {}
 display.value = ''
 display.lastChar = ''
 display.decimalAllowed = true
+display.malformedExpression = false
+display.dividedByZero = false
+
+document.onkeydown = async (e) => {
+    e = e || window.event
+    console.log(e.key)
+    if(e.ctrlKey & e.key === 'v') {
+        console.log('paste')
+        const clip = await navigator.clipboard.readText()
+        updateDisplay(clip)
+    }
+    if(e.key==='Backspace') {
+        undo()
+    }
+    else if(e.key==='Enter') {
+        confirm()
+    }
+    else {
+        if('0123456789,%+-\xB2\u221A*()/'.indexOf(e.key) !== -1) {
+            updateDisplay(e.key)
+        }
+    }
+}
 
 add = (a,b) => parseFloat(a)+parseFloat(b)
 subtract = (a,b) => parseFloat(a)-parseFloat(b)
@@ -27,10 +52,43 @@ square = (a) => a**2
 squareRoot = (a) => a**(1/2)
 percentage = (a) => a/100
 
+confirm = () => {
+    display.value = consoleDisplay[0].innerHTML
+    if(!checkFormula(display.value)) {
+        if(!display.malformedExpression) {
+            display.malformedExpression = true
+            consoleDisplay[0].innerHTML += malformedMessage
+        }
+    }
+    console.log(checkFormula(display.value))
+    console.log(evaluate(display.value))
+}
+undo = () => {
+    display.value = consoleDisplay[0].innerHTML
+    if(display.malformedExpression) {
+        display.value = display.value.slice(0, -malformedMessage.length)
+        display.malformedExpression = false
+        consoleDisplay[0].innerHTML = display.value
+    }
+    if(display.value !== '') {
+        if(display.value.slice(-1) === ',') {
+            display.decimalAllowed = true
+        }
+        display.value = display.value.slice(0,-1)
+        display.lastChar = display.value.slice(-1)
+        display.malformedExpression = false
+        consoleDisplay[0].innerHTML = display.value
+    }
+}
 isOdd = (a) => a%2
 operate = (operator,a,b) => window[operator](a,b)
 updateDisplay = (valueToAdd) => {
     display.value = consoleDisplay[0].innerHTML
+    if(display.malformedExpression) {
+        display.value = display.value.slice(0, -malformedMessage.length)
+        display.malformedExpression = false
+        consoleDisplay[0].innerHTML = display.value
+    }
     display.lastChar = display.value.slice(-1)
     if(valueToAdd === '*' & display.lastChar === '*') {
         display.value = display.value.slice(0, -1) + '^'
@@ -48,9 +106,14 @@ updateDisplay = (valueToAdd) => {
     }
     else if(valueToAdd === '+' & display.lastChar === '+') {
     }
+    else if(valueToAdd === ',' & !display.decimalAllowed) {
+    }
     else {
         display.value += valueToAdd
         display.lastChar = valueToAdd
+        if(valueToAdd === ',') {
+            display.decimalAllowed = false
+        }
     }  
     if(!display.decimalAllowed & !/^[0-9]/.test(display.lastChar) & display.lastChar !== ',') {
         display.decimalAllowed = true
@@ -262,23 +325,15 @@ Array.from(numButtons).forEach(item => {
 })
 
 undoButton.addEventListener('click', event => {
-    if(display.value !== '') {
-        if(display.value.slice(-1) === ',') {
-            display.decimalAllowed = true
-        }
-        display.value = display.value.slice(0,-1)
-        display.lastChar = display.value.slice(-1)
-        consoleDisplay[0].innerHTML = display.value
-    }
+    undo()
 })
 
 clearButton.addEventListener('click', event => {
-    if(display.value !== '') {
-        display.value = ''
-        display.lastChar = ''
-        display.decimalAllowed = true
-        consoleDisplay[0].innerHTML = display.value
-    }
+    display.value = ''
+    display.lastChar = ''
+    display.decimalAllowed = true
+    display.malformedExpression = false
+    consoleDisplay[0].innerHTML = display.value
 })
 
 decimalButton.addEventListener('click', event => {
@@ -325,7 +380,5 @@ squareRootButton.addEventListener('click', event => {
 })
 
 confirmButton.addEventListener('click', event => {
-    display.value = consoleDisplay[0].innerHTML
-    console.log(checkFormula(display.value))
-    console.log(evaluate(display.value))
+    confirm()
 })
