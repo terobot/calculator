@@ -14,7 +14,7 @@ const squareButton = document.getElementById('square')
 const squareRootButton = document.getElementById('squareroot')
 const confirmButton = document.getElementById('confirm')
 const malformedMessage = '<div contenteditable="false">Malformed expression</div>'
-const divideByZeroMessage = '<div contenteditable="false">Division by zero is undefined</div>'
+const dividedByZeroMessage = '<div contenteditable="false">Division by zero is undefined</div>'
 const display = {}
 display.value = ''
 display.lastChar = ''
@@ -60,6 +60,12 @@ confirm = () => {
             consoleDisplay[0].innerHTML += malformedMessage
         }
     }
+    if(!checkDivideByZero(display.value)) {
+        if(!display.dividedByZero) {
+            display.dividedByZero = true
+            consoleDisplay[0].innerHTML += dividedByZeroMessage
+        }
+    }
     console.log(checkFormula(display.value))
     console.log(evaluate(display.value))
 }
@@ -70,6 +76,11 @@ undo = () => {
         display.malformedExpression = false
         consoleDisplay[0].innerHTML = display.value
     }
+    if(display.dividedByZero) {
+        display.value = display.value.slice(0, -dividedByZeroMessage.length)
+        display.dividedByZero = false
+        consoleDisplay[0].innerHTML = display.value
+    }
     if(display.value !== '') {
         if(display.value.slice(-1) === ',') {
             display.decimalAllowed = true
@@ -77,8 +88,17 @@ undo = () => {
         display.value = display.value.slice(0,-1)
         display.lastChar = display.value.slice(-1)
         display.malformedExpression = false
+        display.dividedByZero = false
         consoleDisplay[0].innerHTML = display.value
     }
+}
+clear = () => {
+    display.value = ''
+    display.lastChar = ''
+    display.decimalAllowed = true
+    display.malformedExpression = false
+    display.dividedByZero = false
+    consoleDisplay[0].innerHTML = display.value
 }
 isOdd = (a) => a%2
 operate = (operator,a,b) => window[operator](a,b)
@@ -87,6 +107,11 @@ updateDisplay = (valueToAdd) => {
     if(display.malformedExpression) {
         display.value = display.value.slice(0, -malformedMessage.length)
         display.malformedExpression = false
+        consoleDisplay[0].innerHTML = display.value
+    }
+    if(display.dividedByZero) {
+        display.value = display.value.slice(0, -dividedByZeroMessage.length)
+        display.dividedByZero = false
         consoleDisplay[0].innerHTML = display.value
     }
     display.lastChar = display.value.slice(-1)
@@ -121,6 +146,15 @@ updateDisplay = (valueToAdd) => {
         display.decimalAllowed = true
     }
     consoleDisplay[0].innerHTML = display.value
+}
+checkDivideByZero = (str) => {
+    let indexOfZeroDivide = str.indexOf('/0')
+    if(indexOfZeroDivide !== -1) {
+        if(str[indexOfZeroDivide+2] !== ',') {
+            return false
+        }
+    }
+    return true
 }
 checkFormula = (str) => {
     let isValid = true
@@ -331,11 +365,7 @@ undoButton.addEventListener('click', event => {
 })
 
 clearButton.addEventListener('click', event => {
-    display.value = ''
-    display.lastChar = ''
-    display.decimalAllowed = true
-    display.malformedExpression = false
-    consoleDisplay[0].innerHTML = display.value
+    clear()
 })
 
 decimalButton.addEventListener('click', event => {
