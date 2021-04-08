@@ -108,6 +108,8 @@ updateDisplay = (valueToAdd) => {
     }
     else if(valueToAdd === ',' & !display.decimalAllowed) {
     }
+    else if(valueToAdd === ',' & !/^[0-9]/.test(display.lastChar)) {
+    }
     else {
         display.value += valueToAdd
         display.lastChar = valueToAdd
@@ -337,10 +339,7 @@ clearButton.addEventListener('click', event => {
 })
 
 decimalButton.addEventListener('click', event => {
-    if(display.decimalAllowed & /^[0-9]/.test(display.lastChar)) {
-        updateDisplay(event.target.innerHTML)
-        display.decimalAllowed = false
-    }
+    updateDisplay(event.target.innerHTML)
 })
 
 openBracketButton.addEventListener('click', event => {
