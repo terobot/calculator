@@ -1,5 +1,6 @@
 const numButtons = document.getElementsByClassName('grid-item-num-btn')
 const consoleDisplay = document.getElementsByClassName('grid-item-console')
+const resultsDisplay = document.getElementsByClassName('grid-item-results')
 const undoButton = document.getElementById('undo')
 const clearButton = document.getElementById('clear')
 const decimalButton = document.getElementById('decimal')
@@ -13,14 +14,26 @@ const divideButton = document.getElementById('divide')
 const squareButton = document.getElementById('square')
 const squareRootButton = document.getElementById('squareroot')
 const confirmButton = document.getElementById('confirm')
-const malformedMessage = '<div contenteditable="false">Malformed expression</div>'
-const dividedByZeroMessage = '<div contenteditable="false">Division by zero is undefined</div>'
+const zero = document.getElementById('0')
+const one = document.getElementById('1')
+const two = document.getElementById('2')
+const three = document.getElementById('3')
+const four = document.getElementById('4')
+const five = document.getElementById('5')
+const six = document.getElementById('6')
+const seven = document.getElementById('7')
+const eight = document.getElementById('8')
+const nine = document.getElementById('9')
+const malformedMessage = '<div class="message">Malformed expression</div>'
+const dividedByZeroMessage = '<div class="message">Division by zero is undefined</div>'
 const display = {}
 display.value = ''
 display.lastChar = ''
 display.decimalAllowed = true
 display.malformedExpression = false
 display.dividedByZero = false
+const results = {}
+results.values = []
 
 document.onkeydown = async (e) => {
     e = e || window.event
@@ -32,15 +45,98 @@ document.onkeydown = async (e) => {
     }
     if(e.key==='Backspace') {
         undo()
+        undoButton.classList.add("basic-key")
     }
     else if(e.key==='Enter') {
         confirm()
+        confirmButton.classList.add("enter-key")
+    }
+    else if(e.key==='c' & !e.ctrlKey) {
+        clear()
+        clearButton.classList.add("basic-key")
     }
     else {
-        if('0123456789,%+-\xB2\u221A*()/'.indexOf(e.key) !== -1) {
+        if('0123456789,%+-*()/'.indexOf(e.key) !== -1) {
             updateDisplay(e.key)
+            if(e.key === '(') {
+                openBracketButton.classList.add("basic-key")
+            }
+            if(e.key === ')') {
+                closeBracketButton.classList.add("basic-key")
+            }
+            if(e.key === '/') {
+                divideButton.classList.add("basic-key")
+            }
+            if(e.key === '*') {
+                multiplyButton.classList.add("basic-key")
+            }
+            if(e.key === '-') {
+                subtrackButton.classList.add("basic-key")
+            }
+            if(e.key === '+') {
+                addButton.classList.add("basic-key")
+            }
+            if(e.key === '%') {
+                percentageButton.classList.add("basic-key")
+            }
+            if(e.key === ',') {
+                decimalButton.classList.add("basic-key")
+            }
+            if(e.key === '0') {
+                zero.classList.add("num-key")
+            }
+            if(e.key === '1') {
+                one.classList.add("num-key")
+            }
+            if(e.key === '2') {
+                two.classList.add("num-key")
+            }
+            if(e.key === '3') {
+                three.classList.add("num-key")
+            }
+            if(e.key === '4') {
+                four.classList.add("num-key")
+            }
+            if(e.key === '5') {
+                five.classList.add("num-key")
+            }
+            if(e.key === '6') {
+                six.classList.add("num-key")
+            }
+            if(e.key === '7') {
+                seven.classList.add("num-key")
+            }
+            if(e.key === '8') {
+                eight.classList.add("num-key")
+            }
+            if(e.key === '9') {
+                nine.classList.add("num-key")
+            }
         }
     }
+}
+document.onkeyup = async (e) => {
+    confirmButton.classList.remove("enter-key")
+    undoButton.classList.remove("basic-key")
+    clearButton.classList.remove("basic-key")
+    openBracketButton.classList.remove("basic-key")
+    closeBracketButton.classList.remove("basic-key")
+    divideButton.classList.remove("basic-key")
+    multiplyButton.classList.remove("basic-key")
+    subtrackButton.classList.remove("basic-key")
+    addButton.classList.remove("basic-key")
+    percentageButton.classList.remove("basic-key")
+    decimalButton.classList.remove("basic-key")
+    zero.classList.remove("num-key")
+    one.classList.remove("num-key")
+    two.classList.remove("num-key")
+    three.classList.remove("num-key")
+    four.classList.remove("num-key")
+    five.classList.remove("num-key")
+    six.classList.remove("num-key")
+    seven.classList.remove("num-key")
+    eight.classList.remove("num-key")
+    nine.classList.remove("num-key")
 }
 
 add = (a,b) => parseFloat(a)+parseFloat(b)
@@ -53,6 +149,7 @@ squareRoot = (a) => a**(1/2)
 percentage = (a) => a/100
 
 confirm = () => {
+    let result = 0
     display.value = consoleDisplay[0].innerHTML
     if(!checkFormula(display.value)) {
         if(!display.malformedExpression) {
@@ -60,11 +157,16 @@ confirm = () => {
             consoleDisplay[0].innerHTML += malformedMessage
         }
     }
-    if(!checkDivideByZero(display.value)) {
+    else if(!checkDivideByZero(display.value)) {
         if(!display.dividedByZero) {
             display.dividedByZero = true
             consoleDisplay[0].innerHTML += dividedByZeroMessage
         }
+    }
+    else {
+        result = evaluate(display.value)
+        results.values.push(result)
+        console.log(results.values)
     }
     console.log(checkFormula(display.value))
     console.log(evaluate(display.value))
@@ -258,7 +360,7 @@ checkFormula = (str) => {
         isValid = false
     }
     [...str].forEach(c => {
-        if('0123456789,%+-\xB2\u221A*()/'.indexOf(c) === -1) {
+        if('0123456789,%+-\xB2\u221A*()/^'.indexOf(c) === -1) {
             isValid = false
         }
     })
@@ -272,8 +374,9 @@ cleanFormula = (str) => {
 }
 calculate = (str) => {
     let strAsArray = str.split(/(\d+(?:\.\d+)?)/).filter(el => el)
+    console.log(strAsArray)
     while(strAsArray.findIndex(el => el.length > 1 & el.charAt(el.length-1) === '-') !== -1) {
-        let index = strAsArray.findIndex(el => el.charAt(el.length-1) === '-')
+        let index = strAsArray.findIndex(el => el.length > 1 & el.charAt(el.length-1) === '-')
         strAsArray.splice(index+1, 1, multiply(-1, strAsArray[index+1]).toString())
         strAsArray.splice(index, 1, strAsArray[index].slice(0, -1))
         strAsArray = strAsArray.filter(el => el)
@@ -322,6 +425,7 @@ calculate = (str) => {
         }
         strAsArray = strAsArray.filter(el => el)
     }
+    console.log(strAsArray)
     return strAsArray[0]
 }
 evaluate = (str) => {
@@ -334,18 +438,18 @@ evaluate = (str) => {
             tempSubStr = tempStr.match(/\[([^\[\]]*)\]/)[1]
             tempResult = calculate(tempSubStr)
             if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)-1]))) {
-                if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+1]))) {
+                if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
                     tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult+'*')
                 }
-                else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+1]))) {
+                else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
                     tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult)
                 }
             }
             else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)-1]))) {
-                if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+1]))) {
+                if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
                     tempStr = tempStr.replace('['+tempSubStr+']', tempResult+'*')
                 }
-                else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+1]))) {
+                else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
                     tempStr = tempStr.replace('['+tempSubStr+']', tempResult)
                 }
             }

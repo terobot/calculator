@@ -87,3 +87,24 @@ body {
 .grid-item-basic-btn:hover {
     background: rgb(120, 120, 120);
 }
+
+.grid-item-confirm-btn:hover {
+    background: rgb(52, 218, 102);
+}
+
+.num-key {
+    background: rgb(120, 120, 120);
+}
+
+.basic-key {
+    background: rgb(120, 120, 120);
+}
+
+.enter-key {
+    background: rgb(52, 218, 102);
+}
+
+.message {
+    font-size:small;
+    margin-top: 0.5em;
+}
