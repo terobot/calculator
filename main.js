@@ -34,6 +34,8 @@ display.malformedExpression = false
 display.dividedByZero = false
 const results = {}
 results.values = []
+const cursor = {}
+cursor.index = 0
 
 document.onkeydown = async (e) => {
     e = e || window.event
@@ -54,6 +56,20 @@ document.onkeydown = async (e) => {
     else if(e.key==='c' & !e.ctrlKey) {
         clear()
         clearButton.classList.add("basic-key")
+    }
+    else if(e.key==='ArrowLeft') {
+        if(cursor.index > 0) {
+            cursor.index -= 1
+        }
+        moveCursor()
+        console.log('cursorAt: ' + cursor.index)
+    }
+    else if(e.key==='ArrowRight') {
+        if(cursor.index < display.value.length) {
+            cursor.index += 1
+        }
+        moveCursor()
+        console.log('cursorAt: ' + cursor.index)
     }
     else {
         if('0123456789,%+-*()/'.indexOf(e.key) !== -1) {
@@ -150,7 +166,6 @@ percentage = (a) => a/100
 
 confirm = () => {
     let result = 0
-    display.value = consoleDisplay[0].innerHTML
     if(!checkFormula(display.value)) {
         if(!display.malformedExpression) {
             display.malformedExpression = true
@@ -172,17 +187,7 @@ confirm = () => {
     console.log(evaluate(display.value))
 }
 undo = () => {
-    display.value = consoleDisplay[0].innerHTML
-    if(display.malformedExpression) {
-        display.value = display.value.slice(0, -malformedMessage.length)
-        display.malformedExpression = false
-        consoleDisplay[0].innerHTML = display.value
-    }
-    if(display.dividedByZero) {
-        display.value = display.value.slice(0, -dividedByZeroMessage.length)
-        display.dividedByZero = false
-        consoleDisplay[0].innerHTML = display.value
-    }
+    clearMessage()
     if(display.value !== '') {
         if(display.value.slice(-1) === ',') {
             display.decimalAllowed = true
@@ -193,6 +198,11 @@ undo = () => {
         display.dividedByZero = false
         consoleDisplay[0].innerHTML = display.value
     }
+    if(cursor.index > 0) {
+        cursor.index -= 1
+    }
+    moveCursor()
+    console.log('cursorAt: ' + cursor.index)
 }
 clear = () => {
     display.value = ''
@@ -201,21 +211,40 @@ clear = () => {
     display.malformedExpression = false
     display.dividedByZero = false
     consoleDisplay[0].innerHTML = display.value
+    cursor.index = 0
+    moveCursor()
+    console.log('cursorAt: ' + cursor.index)
+}
+clearMessage = () => {
+    if(display.malformedExpression) {
+        display.malformedExpression = false
+        consoleDisplay[0].innerHTML = consoleDisplay[0].innerHTML.slice(0, -malformedMessage.length)
+    }
+    if(display.dividedByZero) {
+        display.dividedByZero = false
+        consoleDisplay[0].innerHTML = consoleDisplay[0].innerHTML.slice(0, -dividedByZeroMessage.length)
+    }
+}
+moveCursor = () => {
+    console.log(display.value)
+    let textAsArray = display.value.split('')
+    console.log(textAsArray)
+    let charToHighLight = ''
+    if(textAsArray[cursor.index] === '' | textAsArray[cursor.index] === undefined) {
+        charToHighLight = '_'
+    }
+    else {
+        charToHighLight = textAsArray[cursor.index]
+    }
+    textAsArray[cursor.index] = `<i class="cursor">${charToHighLight}</i>`
+    consoleDisplay[0].innerHTML = textAsArray.join('')
+    console.log(consoleDisplay[0].innerHTML)
+    console.log(display.value)
 }
 isOdd = (a) => a%2
 operate = (operator,a,b) => window[operator](a,b)
 updateDisplay = (valueToAdd) => {
-    display.value = consoleDisplay[0].innerHTML
-    if(display.malformedExpression) {
-        display.value = display.value.slice(0, -malformedMessage.length)
-        display.malformedExpression = false
-        consoleDisplay[0].innerHTML = display.value
-    }
-    if(display.dividedByZero) {
-        display.value = display.value.slice(0, -dividedByZeroMessage.length)
-        display.dividedByZero = false
-        consoleDisplay[0].innerHTML = display.value
-    }
+    clearMessage()
     display.lastChar = display.value.slice(-1)
     if(valueToAdd === '*' & display.lastChar === '*') {
         display.value = display.value.slice(0, -1) + '^'
@@ -248,6 +277,9 @@ updateDisplay = (valueToAdd) => {
         display.decimalAllowed = true
     }
     consoleDisplay[0].innerHTML = display.value
+    cursor.index += 1
+    moveCursor()
+    console.log('cursorAt: ' + cursor.index)
 }
 checkDivideByZero = (str) => {
     let indexOfZeroDivide = str.indexOf('/0')
