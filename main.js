@@ -28,10 +28,12 @@ const malformedMessage = '<div class="message">Malformed expression</div>'
 const dividedByZeroMessage = '<div class="message">Division by zero is undefined</div>'
 const display = {}
 display.value = ''
-display.lastChar = ''
+display.prevChar = ''
 display.decimalAllowed = true
 display.malformedExpression = false
 display.dividedByZero = false
+display.beforeCursor = ''
+display.afterCursor = ''
 const results = {}
 results.values = []
 const cursor = {}
@@ -41,7 +43,6 @@ document.onkeydown = async (e) => {
     e = e || window.event
     console.log(e.key)
     if(e.ctrlKey & e.key === 'v') {
-        console.log('paste')
         const clip = await navigator.clipboard.readText()
         updateDisplay(clip)
     }
@@ -62,14 +63,12 @@ document.onkeydown = async (e) => {
             cursor.index -= 1
         }
         moveCursor()
-        console.log('cursorAt: ' + cursor.index)
     }
     else if(e.key==='ArrowRight') {
         if(cursor.index < display.value.length) {
             cursor.index += 1
         }
         moveCursor()
-        console.log('cursorAt: ' + cursor.index)
     }
     else {
         if('0123456789,%+-*()/'.indexOf(e.key) !== -1) {
@@ -183,37 +182,27 @@ confirm = () => {
         results.values.push(result)
         console.log(results.values)
     }
-    console.log(checkFormula(display.value))
-    console.log(evaluate(display.value))
 }
 undo = () => {
     clearMessage()
-    if(display.value !== '') {
-        if(display.value.slice(-1) === ',') {
-            display.decimalAllowed = true
-        }
-        display.value = display.value.slice(0,-1)
-        display.lastChar = display.value.slice(-1)
-        display.malformedExpression = false
-        display.dividedByZero = false
+    if(cursor.index > 0) {
+        display.value = display.beforeCursor.slice(0, -1) + display.afterCursor
+        cursor.index -= 1
+        moveCursor()
         consoleDisplay[0].innerHTML = display.value
     }
-    if(cursor.index > 0) {
-        cursor.index -= 1
-    }
-    moveCursor()
-    console.log('cursorAt: ' + cursor.index)
 }
 clear = () => {
     display.value = ''
-    display.lastChar = ''
+    display.prevChar = ''
     display.decimalAllowed = true
     display.malformedExpression = false
     display.dividedByZero = false
+    display.beforeCursor = ''
+    display.afterCursor = ''
     consoleDisplay[0].innerHTML = display.value
     cursor.index = 0
     moveCursor()
-    console.log('cursorAt: ' + cursor.index)
 }
 clearMessage = () => {
     if(display.malformedExpression) {
@@ -226,9 +215,7 @@ clearMessage = () => {
     }
 }
 moveCursor = () => {
-    console.log(display.value)
     let textAsArray = display.value.split('')
-    console.log(textAsArray)
     let charToHighLight = ''
     if(textAsArray[cursor.index] === '' | textAsArray[cursor.index] === undefined) {
         charToHighLight = '_'
@@ -236,50 +223,74 @@ moveCursor = () => {
     else {
         charToHighLight = textAsArray[cursor.index]
     }
-    textAsArray[cursor.index] = `<i class="cursor">${charToHighLight}</i>`
+    textAsArray[cursor.index] = `<b class="cursor">${charToHighLight}</b>`
     consoleDisplay[0].innerHTML = textAsArray.join('')
     console.log(consoleDisplay[0].innerHTML)
-    console.log(display.value)
+    display.prevChar = display.value.slice(cursor.index-1, cursor.index)
+    display.beforeCursor = display.value.slice(0, cursor.index)
+    display.afterCursor = display.value.slice(cursor.index)
+    checkDecimalAllowance()
+}
+checkDecimalAllowance = () => {
+    let firstNonNumBefore = ''
+    let firstNonNumAfter = ''
+    firstNonNumBefore = display.beforeCursor.split('').reverse().join('').match(/[^0-9]/)
+    firstNonNumAfter = display.afterCursor.match(/[^0-9]/)
+    if(firstNonNumBefore !== null) {
+        if(firstNonNumBefore[0] !== ',') {
+            if(firstNonNumAfter === null) {
+                display.decimalAllowed = true
+            }
+            else if(firstNonNumAfter[0] !== ',') {
+                display.decimalAllowed = true
+            }
+        }
+        else if(firstNonNumBefore[0] === ',') {
+            display.decimalAllowed = false
+        }
+        else if(firstNonNumAfter !== null) {
+            if(firstNonNumAfter[0] === ',') {
+                display.decimalAllowed = false
+            }
+        }
+    }
+    if(firstNonNumAfter !== null) {
+        if(firstNonNumAfter[0] === ',') {
+            display.decimalAllowed = false
+        }
+    }
 }
 isOdd = (a) => a%2
 operate = (operator,a,b) => window[operator](a,b)
 updateDisplay = (valueToAdd) => {
     clearMessage()
-    display.lastChar = display.value.slice(-1)
-    if(valueToAdd === '*' & display.lastChar === '*') {
-        display.value = display.value.slice(0, -1) + '^'
-        display.lastChar = '^'
+    if(valueToAdd === '*' & display.prevChar === '*') {
+        display.value = display.beforeCursor.slice(0, -1) + '^' + display.afterCursor
+        display.prevChar = '^'
     }
-    else if(valueToAdd === '-' & display.lastChar === '-') {
-        display.value = display.value.slice(0, -1) + '+'
-        display.lastChar = '+'
+    else if(valueToAdd === '-' & display.prevChar === '-') {
+        display.value = display.beforeCursor.slice(0, -1) + '+' + display.afterCursor
+        display.prevChar = '+'
     }
-    else if(valueToAdd === '+' & display.lastChar === '-') {
+    else if(valueToAdd === '+' & display.prevChar === '-') {
     }
-    else if(valueToAdd === '-' & display.lastChar === '+') {
-        display.value = display.value.slice(0, -1) + '-'
-        display.lastChar = '-'
+    else if(valueToAdd === '-' & display.prevChar === '+') {
+        display.value = display.beforeCursor.slice(0, -1) + '-' + display.afterCursor
+        display.prevChar = '-'
     }
-    else if(valueToAdd === '+' & display.lastChar === '+') {
+    else if(valueToAdd === '+' & display.prevChar === '+') {
     }
     else if(valueToAdd === ',' & !display.decimalAllowed) {
     }
-    else if(valueToAdd === ',' & !/^[0-9]/.test(display.lastChar)) {
+    else if(valueToAdd === ',' & !/^[0-9]/.test(display.prevChar)) {
     }
     else {
-        display.value += valueToAdd
-        display.lastChar = valueToAdd
-        if(valueToAdd === ',') {
-            display.decimalAllowed = false
-        }
-    }  
-    if(!display.decimalAllowed & !/^[0-9]/.test(display.lastChar) & display.lastChar !== ',') {
-        display.decimalAllowed = true
+        display.value = display.beforeCursor + valueToAdd + display.afterCursor
+        display.prevChar = valueToAdd.toString().slice(-1)
+        cursor.index += valueToAdd.toString().length
     }
     consoleDisplay[0].innerHTML = display.value
-    cursor.index += 1
     moveCursor()
-    console.log('cursorAt: ' + cursor.index)
 }
 checkDivideByZero = (str) => {
     let indexOfZeroDivide = str.indexOf('/0')
