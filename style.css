@@ -38,8 +38,12 @@ body {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: large;
     padding: 1em;
-    overflow: hidden;
     white-space: nowrap;
+    overflow: scroll;
+}
+
+.grid-item-console::-webkit-scrollbar {
+    display: none;
 }
 
 .grid-item-num-btn {

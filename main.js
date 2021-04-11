@@ -46,9 +46,16 @@ document.onkeydown = async (e) => {
         const clip = await navigator.clipboard.readText()
         updateDisplay(clip)
     }
-    if(e.key==='Backspace') {
+    else if(e.key==='Backspace') {
         undo()
         undoButton.classList.add("basic-key")
+    }
+    else if(e.key==='Delete') {
+        if(cursor.index < display.value.length) {
+            cursor.index += 1
+            moveCursor()
+            undo()
+        }
     }
     else if(e.key==='Enter') {
         confirm()
@@ -59,16 +66,20 @@ document.onkeydown = async (e) => {
         clearButton.classList.add("basic-key")
     }
     else if(e.key==='ArrowLeft') {
+        e.preventDefault()
         if(cursor.index > 0) {
             cursor.index -= 1
         }
         moveCursor()
+        consoleDisplay[0].scrollLeft -= 10
     }
     else if(e.key==='ArrowRight') {
+        e.preventDefault()
         if(cursor.index < display.value.length) {
             cursor.index += 1
         }
         moveCursor()
+        consoleDisplay[0].scrollLeft += 10
     }
     else {
         if('0123456789,%+-*()/'.indexOf(e.key) !== -1) {
@@ -188,8 +199,9 @@ undo = () => {
     if(cursor.index > 0) {
         display.value = display.beforeCursor.slice(0, -1) + display.afterCursor
         cursor.index -= 1
-        moveCursor()
         consoleDisplay[0].innerHTML = display.value
+        consoleDisplay[0].scrollLeft -= 1
+        moveCursor()
     }
 }
 clear = () => {
@@ -290,6 +302,7 @@ updateDisplay = (valueToAdd) => {
         cursor.index += valueToAdd.toString().length
     }
     consoleDisplay[0].innerHTML = display.value
+    consoleDisplay[0].scrollLeft += 10
     moveCursor()
 }
 checkDivideByZero = (str) => {
@@ -479,7 +492,6 @@ evaluate = (str) => {
         while (tempStr.indexOf('[') !== -1) {
             tempSubStr = tempStr.match(/\[([^\[\]]*)\]/)[1]
             tempResult = calculate(tempSubStr)
-            console.log(tempStr[tempStr.indexOf('['+tempSubStr)-1])
             if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)-1]))) {
                 if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
                     tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult+'*')
