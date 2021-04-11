@@ -179,7 +179,7 @@ confirm = () => {
     }
     else {
         result = evaluate(display.value)
-        results.values.push(result)
+        results.values.push(display.value + '=' + result)
         console.log(results.values)
     }
 }
@@ -468,7 +468,6 @@ calculate = (str) => {
         }
         strAsArray = strAsArray.filter(el => el)
     }
-    console.log(strAsArray)
     return strAsArray[0]
 }
 evaluate = (str) => {
@@ -480,19 +479,37 @@ evaluate = (str) => {
         while (tempStr.indexOf('[') !== -1) {
             tempSubStr = tempStr.match(/\[([^\[\]]*)\]/)[1]
             tempResult = calculate(tempSubStr)
+            console.log(tempStr[tempStr.indexOf('['+tempSubStr)-1])
             if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)-1]))) {
                 if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
                     tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult+'*')
                 }
-                else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
+                else if(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2] === '\u221A') {
+                    tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult+'*')
+                }
+                else {
                     tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult)
                 }
             }
-            else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)-1]))) {
+            else if(tempStr[tempStr.indexOf('['+tempSubStr)-1] === '\xB2') {
+                if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
+                    tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult+'*')
+                }
+                else if(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2] === '\u221A') {
+                    tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult+'*')
+                }
+                else {
+                    tempStr = tempStr.replace('['+tempSubStr+']', '*'+tempResult)
+                }
+            }
+            else {
                 if(Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
                     tempStr = tempStr.replace('['+tempSubStr+']', tempResult+'*')
                 }
-                else if(!Number.isInteger(parseInt(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2]))) {
+                else if(tempStr[tempStr.indexOf('['+tempSubStr)+tempSubStr.length+2] === '\u221A') {
+                    tempStr = tempStr.replace('['+tempSubStr+']', tempResult+'*')
+                }
+                else {
                     tempStr = tempStr.replace('['+tempSubStr+']', tempResult)
                 }
             }
