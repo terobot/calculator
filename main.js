@@ -1,6 +1,6 @@
 const numButtons = document.getElementsByClassName('grid-item-num-btn')
 const consoleDisplay = document.getElementsByClassName('grid-item-console')
-const resultsDisplay = document.getElementsByClassName('grid-item-results')
+const resultTable = document.getElementsByTagName('table')
 const undoButton = document.getElementById('undo')
 const clearButton = document.getElementById('clear')
 const decimalButton = document.getElementById('decimal')
@@ -190,8 +190,17 @@ confirm = () => {
     }
     else {
         result = evaluate(display.value)
+        console.log('result:'+result)
         results.values.push(display.value + '=' + result)
         console.log(results.values)
+        updateResultTable(results.values[results.values.length-1])
+    }
+}
+updateResultTable = (result) => {
+    let rowElements = result.split(/(=)/)
+    let row = resultTable[0].insertRow(0)
+    for(i=0; i<3; i++) {
+        row.insertCell(i).innerHTML = rowElements[i]
     }
 }
 undo = () => {
@@ -474,10 +483,20 @@ calculate = (str) => {
     while(strAsArray.findIndex(el => el.charAt(el.length-1) === '+' | el.charAt(el.length-1) === '-') !== -1) {
         let index = strAsArray.findIndex(el => el.charAt(el.length-1) === '+' | el.charAt(el.length-1) === '-')
         if(isOdd((strAsArray[index].match(/-/g) || []).length)){
-            strAsArray.splice(index-1, 3, subtract(strAsArray[index-1], strAsArray[index+1]).toString())
+            if(strAsArray[index-1]) {
+                strAsArray.splice(index-1, 3, subtract(strAsArray[index-1], strAsArray[index+1]).toString())
+            }
+            else {
+                strAsArray.splice(index, 2, subtract(0, strAsArray[index+1]).toString())
+            }
         }
         else if(!isOdd((strAsArray[index].match(/-/g) || []).length)){
-            strAsArray.splice(index-1, 3, add(strAsArray[index-1], strAsArray[index+1]).toString())
+            if(strAsArray[index-1]) {
+                strAsArray.splice(index-1, 3, subtract(strAsArray[index-1], strAsArray[index+1]).toString())
+            }
+            else {
+                strAsArray.splice(index, 2, subtract(0, strAsArray[index+1]).toString())
+            }
         }
         strAsArray = strAsArray.filter(el => el)
     }

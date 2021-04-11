@@ -27,6 +27,42 @@ body {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: large;
     padding: 1em;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.grid-item-results::-webkit-scrollbar {
+    display: none;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+td:nth-child(1) {
+    width: 179px;
+    overflow: scroll;
+    text-overflow: clip;
+}
+
+td:nth-child(1)::-webkit-scrollbar {
+    display: none;
+}
+
+td:nth-child(2) {
+    padding-left: 0.5em;
+    width: 20px;
+}
+
+td:nth-child(3) {
+    width: 119px;
+    overflow: scroll;
+    text-overflow: clip;
+}
+
+td:nth-child(3)::-webkit-scrollbar {
+    display: none;
 }
 
 .grid-item-console {
