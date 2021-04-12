@@ -200,7 +200,7 @@ updateResultTable = (result) => {
     for(i=0; i<3; i++) {
         row.insertCell(i).innerHTML = rowElements[i]
         if(i !== 1) {
-            row.cells[i].addEventListener('click', event => {
+            row.cells[i].addEventListener('dblclick', event => {
                 updateDisplay(event.target.innerHTML)
             })
         }
