@@ -501,10 +501,10 @@ calculate = (str) => {
         }
         else if(!isOdd((strAsArray[index].match(/-/g) || []).length)){
             if(strAsArray[index-1]) {
-                strAsArray.splice(index-1, 3, subtract(strAsArray[index-1], strAsArray[index+1]).toString())
+                strAsArray.splice(index-1, 3, add(strAsArray[index-1], strAsArray[index+1]).toString())
             }
             else {
-                strAsArray.splice(index, 2, subtract(0, strAsArray[index+1]).toString())
+                strAsArray.splice(index, 2, add(0, strAsArray[index+1]).toString())
             }
         }
         strAsArray = strAsArray.filter(el => el)
