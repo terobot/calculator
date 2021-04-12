@@ -4,6 +4,22 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    background-color: rgb(206, 205, 204);
+}
+
+.frame {
+    margin: 10%;
+    padding: 5px;
+    background-color: rgb(240, 240, 240);
+    border-radius: 10px;
+}
+
+.title {
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: x-large;
+    font-weight: bold;
+    text-align: center;
+    color: rgb(65, 65, 65);
 }
 
 .grid-container {
@@ -29,6 +45,7 @@ body {
     padding: 1em;
     overflow-y: scroll;
     overflow-x: hidden;
+    border-radius: 10px;
 }
 
 .grid-item-results::-webkit-scrollbar {
@@ -50,6 +67,13 @@ td:nth-child(1)::-webkit-scrollbar {
     display: none;
 }
 
+td:nth-child(1):hover {
+    background-color: rgb(120, 120, 120);
+    font-weight: bold;
+    border-radius: 5px;
+    padding-left: 10px;
+}
+
 td:nth-child(2) {
     padding-left: 0.5em;
     width: 20px;
@@ -65,6 +89,13 @@ td:nth-child(3)::-webkit-scrollbar {
     display: none;
 }
 
+td:nth-child(3):hover {
+    background-color: rgb(120, 120, 120);
+    font-weight: bold;
+    border-radius: 5px;
+    padding-left: 10px;
+}
+
 .grid-item-console {
     grid-column: 1 / span 6;
     grid-row: 2 / span 1;
@@ -76,6 +107,7 @@ td:nth-child(3)::-webkit-scrollbar {
     padding: 1em;
     white-space: nowrap;
     overflow: scroll;
+    border-radius: 10px;
 }
 
 .grid-item-console::-webkit-scrollbar {
@@ -92,6 +124,7 @@ td:nth-child(3)::-webkit-scrollbar {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: large;
     user-select: none;
+    border-radius: 10px;
 }
 
 .grid-item-basic-btn {
@@ -104,6 +137,7 @@ td:nth-child(3)::-webkit-scrollbar {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: large;
     user-select: none;
+    border-radius: 10px;
 }
 
 .grid-item-confirm-btn {
@@ -118,6 +152,7 @@ td:nth-child(3)::-webkit-scrollbar {
     font-size: xx-large;
     padding: 1em;
     user-select: none;
+    border-radius: 10px;
 }
 
 .grid-item-num-btn:hover {

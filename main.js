@@ -190,9 +190,7 @@ confirm = () => {
     }
     else {
         result = evaluate(display.value)
-        console.log('result:'+result)
         results.values.push(display.value + '=' + result)
-        console.log(results.values)
         updateResultTable(results.values[results.values.length-1])
     }
 }
@@ -201,6 +199,11 @@ updateResultTable = (result) => {
     let row = resultTable[0].insertRow(0)
     for(i=0; i<3; i++) {
         row.insertCell(i).innerHTML = rowElements[i]
+        if(i !== 1) {
+            row.cells[i].addEventListener('click', event => {
+                updateDisplay(event.target.innerHTML)
+            })
+        }
     }
 }
 undo = () => {
