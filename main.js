@@ -459,12 +459,18 @@ calculate = (str) => {
         }
         strAsArray.splice(index, 1, strAsArray[index].slice(1))
         strAsArray = strAsArray.filter(el => el)
+        if(!isNaN(strAsArray[index])) {
+            strAsArray.splice(index, 0, '*')
+        }
     }
     while(strAsArray.findIndex(el => el.charAt(el.length-1) === '\u221A') !== -1) {
         let index = strAsArray.findIndex(el => el.charAt(el.length-1) === '\u221A')
         strAsArray.splice(index+1, 1, squareRoot(strAsArray[index+1]).toString())
         strAsArray.splice(index, 1, strAsArray[index].slice(0, -1))
         strAsArray = strAsArray.filter(el => el)
+        if(!isNaN(strAsArray[index]) & index > 0) {
+            strAsArray.splice(index, 0, '*')
+        }
     }
     while(strAsArray.findIndex(el => el.charAt(el.length-1) === '^') !== -1) {
         let index = strAsArray.findIndex(el => el.charAt(0) === '^')

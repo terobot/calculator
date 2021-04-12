@@ -60,7 +60,8 @@ table {
 td:nth-child(1) {
     width: 179px;
     overflow: scroll;
-    text-overflow: clip;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 td:nth-child(1)::-webkit-scrollbar {
@@ -72,6 +73,7 @@ td:nth-child(1):hover {
     font-weight: bold;
     border-radius: 5px;
     padding-left: 10px;
+    text-overflow: clip;
 }
 
 td:nth-child(2) {
@@ -82,7 +84,8 @@ td:nth-child(2) {
 td:nth-child(3) {
     width: 119px;
     overflow: scroll;
-    text-overflow: clip;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 td:nth-child(3)::-webkit-scrollbar {
@@ -94,6 +97,7 @@ td:nth-child(3):hover {
     font-weight: bold;
     border-radius: 5px;
     padding-left: 10px;
+    text-overflow: clip;
 }
 
 .grid-item-console {
