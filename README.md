@@ -9,3 +9,6 @@ Some behaviour, that may be a bit odd:
 2(-2²)=-8
 
 To do: Tests
+
+Try it out:
+https://terobot.github.io/calculator/
